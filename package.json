@@ -1,6 +1,6 @@
 {
   "name": "swot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Used to develop ScraperWiki tools",
   "main": "cli.coffee",
   "scripts": {
