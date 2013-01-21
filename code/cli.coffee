@@ -1,4 +1,10 @@
 #!/usr/bin/env coffee
+
+request = require 'request'
+fs = require 'fs'
+
+URLBASE = 'https://box.scraperwiki.com'
+
 command = {}
 
 command.help =
@@ -16,8 +22,32 @@ command.help =
 command.setup =
   help: "setup <boxname> <apikey>\tSet tool project"
   run: (args) ->
+    console.log args
+    boxName = args[2]
+    apikey = args[3]
+    sshkey_pub_path = process.env.SSHKEY || "#{process.env.HOME}/.ssh/id_rsa.pub"
     # add ssh key
-    # save boxName & apikey into .swotconfig
+    uri = "#{URLBASE}/#{boxName}/sshkeys"
+    options =
+      uri: uri
+      form:
+        apikey: apikey
+        sshkey: fs.readFileSync sshkey_pub_path, "ascii"
+    request.post options, (err, resp, body) ->
+      if err
+        console.warn "Error connecting to #{uri}: #{err}"
+        process.exit (4)
+      if ! /^2/.test(resp.statusCode)
+        console.warn "Status code error from #{uri}: #{resp.statusCode} #{body}"
+        process.exit (8)
+      # ssh key now added
+      obj =
+        boxName: boxName
+        apikey: apikey
+      filename = ".swotconfig"
+      fs.writeFileSync filename, JSON.stringify(obj)
+      console.log "saved details in #{filename}"
+      process.exit(0)
 
 command.watch =
   help: "watch\tWatch files and rsync on change"

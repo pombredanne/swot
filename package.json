@@ -19,5 +19,8 @@
     "develop"
   ],
   "author": "ScraperWiki Limited",
-  "license": "BSD"
+  "license": "BSD",
+  "dependencies": {
+    "request": "~2.12.0"
+  }
 }
