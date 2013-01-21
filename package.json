@@ -1,0 +1,20 @@
+{
+  "name": "swot",
+  "version": "0.0.0",
+  "description": "Used to develop ScraperWiki tools",
+  "main": "cli.coffee",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scraperwiki/swot.git"
+  },
+  "keywords": [
+    "scraperwiki",
+    "tool",
+    "develop"
+  ],
+  "author": "ScraperWiki Limited",
+  "license": "BSD"
+}
