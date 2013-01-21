@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha"
   },
+  "bin": {
+    "swot": "./code/cli.coffee"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/scraperwiki/swot.git"
