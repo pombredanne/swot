@@ -63,7 +63,7 @@ doSync = (cb) ->
   mustSync = false
   {sshkey, boxName} = JSON.parse(fs.readFileSync(".swotconfig"))
   toolname = path.basename(process.cwd())
-  cmd = ['rsync', '-rlpE', '-e', "ssh -i #{sshkey}", '.', "#{boxName}@box.scraperwiki.com:#{toolname}"]
+  cmd = ['rsync', '-rlp', '-e', "ssh -i #{sshkey}", '.', "#{boxName}@box.scraperwiki.com:#{toolname}"]
   console.log "running #{cmd.join ' '}"
   child = child_process.spawn cmd[0], cmd[1..]
   child.stdout.pipe process.stdout
