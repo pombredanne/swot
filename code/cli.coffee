@@ -51,7 +51,7 @@ command.setup =
         apikey: apikey
         sshkey: sshkey_pub_path.replace('.pub', '') # todo: use RE
       filename = ".swotconfig"
-      fs.writeFileSync filename, JSON.stringify(obj)
+      fs.writeFileSync filename, JSON.stringify(obj, null, 2)
       console.log "saved details in #{filename}"
       process.exit(0)
 
