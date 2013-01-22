@@ -9,7 +9,7 @@ request = require 'request'
 
 existsSync = fs.existsSync || path.existsSync
 
-URLBASE = 'https://box.scraperwiki.com'
+URLBASE = process.env.BOX_SERVER or "https://box.scraperwiki.com"
 
 command = {}
 
