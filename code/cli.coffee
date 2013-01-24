@@ -63,8 +63,8 @@ doSync = (cb) ->
   mustSync = false
   {sshkey, boxName, toolName} = JSON.parse(fs.readFileSync(".swotconfig"))
   toolName = toolName or path.basename(process.cwd())
-  [t_, host] = URLBASE.match /http:\/\/(.+)/
-  cmd = ['rsync', '-rlp', '-e', "ssh -i #{sshkey}", '.', "#{boxName}@#{host}:#{toolName}"]
+  [t_, host] = URLBASE.match /https?:\/\/(.+)/
+  cmd = ['rsync', '-rlp', '-e', "ssh -o IdentitiesOnly=yes -i #{sshkey}", '.', "#{boxName}@#{host}:#{toolName}"]
   console.log "running #{cmd.join ' '}"
   child = child_process.spawn cmd[0], cmd[1..]
   child.stdout.pipe process.stdout
@@ -72,6 +72,7 @@ doSync = (cb) ->
   child.on 'error', ->
     console.warn "exec: #{error}"
   child.on 'exit', ->
+    console.log 'Synced!'
     cb null
 
 sync = ->
@@ -81,12 +82,21 @@ sync = ->
   async.whilst((-> mustSync), doSync,
     (-> lastSync = new Date(); syncing = false))
 
+command.sync =
+  help: "sync\tSync once"
+  run: ->
+    doSync (err) ->
+      process.exit 0 unless err?
+      process.exit err.code
+
+
 command.watch =
   help: "watch\tWatch files and rsync on change"
   run: (args) ->
     unless existsSync '.swotconfig'
       console.warn '.swotconfig not found, try running "swot help setup".'
       process.exit 16
+    sync() # Sync one first
     fs.watch '.', (event, filename) ->
       SYNCDELAY = 1000
       # Limit so that we sync at most once every SYNCDELAY milliseconds.
