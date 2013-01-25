@@ -62,7 +62,7 @@ mustSync = false
 doSync = (cb) ->
   mustSync = false
   {sshkey, boxName, toolName} = JSON.parse(fs.readFileSync(".swotconfig"))
-  toolName = toolName or path.basename(process.cwd())
+  toolName = toolName or 'tool'
   [t_, host] = URLBASE.match /https?:\/\/(.+)/
   cmd = ['rsync', '-rlp', '-e', "ssh -o IdentitiesOnly=yes -i #{sshkey}", '.', "#{boxName}@#{host}:#{toolName}"]
   console.log "running #{cmd.join ' '}"
