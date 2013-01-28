@@ -60,7 +60,6 @@ mustSync = false
 patience = 1000 # time to wait until syncing, in milliseconds
 
 doSync = (cb) ->
-  console.log 'DOSYNC', 'mustSync =', mustSync, 'syncing =', syncing
   mustSync = false
   {sshkey, boxName, toolName} = JSON.parse(fs.readFileSync(".swotconfig"))
   toolName = toolName or 'tool'
@@ -77,7 +76,6 @@ doSync = (cb) ->
     cb null
 
 sync = ->
-  console.log 'SYNC', 'mustSync =', mustSync, 'syncing =', syncing
   """Sync using rsync to the remote box."""
   mustSync = true
   if syncing then return
@@ -104,7 +102,6 @@ command.watch =
       process.exit 16
     timer = setTimeout(sync, patience)
     fs.watch '.', (event, filename) ->
-      console.log 'FSWATCH', 'mustSync =', mustSync, 'syncing =', syncing
       clearTimeout(timer)
       timer = setTimeout(sync, patience)
 
