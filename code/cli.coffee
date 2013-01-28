@@ -55,11 +55,12 @@ command.setup =
       console.log "saved details in #{filename}"
       process.exit(0)
 
-lastSync = null
 syncing = false
 mustSync = false
+patience = 1000 # time to wait until syncing, in milliseconds
 
 doSync = (cb) ->
+  console.log 'DOSYNC', 'mustSync =', mustSync, 'syncing =', syncing
   mustSync = false
   {sshkey, boxName, toolName} = JSON.parse(fs.readFileSync(".swotconfig"))
   toolName = toolName or 'tool'
@@ -76,11 +77,13 @@ doSync = (cb) ->
     cb null
 
 sync = ->
+  console.log 'SYNC', 'mustSync =', mustSync, 'syncing =', syncing
   """Sync using rsync to the remote box."""
-  syncing = true
   mustSync = true
+  if syncing then return
+  syncing = true
   async.whilst((-> mustSync), doSync,
-    (-> lastSync = new Date(); syncing = false))
+    (-> syncing = false))
 
 command.sync =
   help: "sync\tSync once"
@@ -89,30 +92,17 @@ command.sync =
       process.exit 0 unless err?
       process.exit err.code
 
-
 command.watch =
   help: "watch\tWatch files and rsync on change"
   run: (args) ->
     unless existsSync '.swotconfig'
       console.warn '.swotconfig not found, try running "swot help setup".'
       process.exit 16
-    sync() # Sync one first
+    timer = setTimeout(sync, patience)
     fs.watch '.', (event, filename) ->
-      SYNCDELAY = 1000
-      # Limit so that we sync at most once every SYNCDELAY milliseconds.
-      now = new Date()
-      # If syncing is true, then we neeed to sync again immediately after we finish.
-      if syncing
-        mustSync = true
-        return
-      if lastSync
-        # answer in milliseconds.
-        age = now - lastSync
-      else
-        age = 1e6
-      if age > SYNCDELAY
-        sync()
-
+      console.log 'FSWATCH', 'mustSync =', mustSync, 'syncing =', syncing
+      clearTimeout(timer)
+      timer = setTimeout(sync, patience)
 
 exports.main = main = (args) ->
   # If supplied *args* should be a list of arguments,
