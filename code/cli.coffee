@@ -93,7 +93,7 @@ command.sync =
       process.exit err.code
 
 command.watch =
-  help: "watch\tWatch files and rsync on change"
+  help: "watch\tWatch files and rsync on change. Not on OS X :-("
   run: (args) ->
     unless existsSync '.swotconfig'
       console.warn '.swotconfig not found, try running "swot help setup".'
