@@ -92,6 +92,10 @@ command.sync =
       process.exit 0 unless err?
       process.exit err.code
 
+# On OS X there is a bug in fs.watch that means that it doesn't work
+# so well. See https://github.com/joyent/node/issues/3343 and others
+# for more details. I think we expect this to be fixed in whatever
+# stable Node version comes after 0.9.x.
 command.watch =
   help: "watch\tWatch files and rsync on change. Not on OS X :-("
   run: (args) ->
