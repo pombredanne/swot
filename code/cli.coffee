@@ -14,7 +14,7 @@ URLBASE = process.env.BOX_SERVER or "https://box.scraperwiki.com"
 command = {}
 
 command.help =
-  help: "help\tShow this help"
+  help: "help\t\t\tShow this help"
   run: (args) ->
     cmdhelp = (command[cmd].help for cmd of command).join('\n    ')
     help =
@@ -58,21 +58,23 @@ command.setup =
 syncing = false
 mustSync = false
 patience = 1000 # time to wait until syncing, in milliseconds
+forever = false
 
 doSync = (cb) ->
-  mustSync = false
+  mustSync = forever  # normally forever is false
   {sshkey, boxName, toolName} = JSON.parse(fs.readFileSync(".swotconfig"))
   toolName = toolName or 'tool'
   [t_, host] = URLBASE.match /https?:\/\/(.+)/
   cmd = ['rsync', '-rlp', '-e', "ssh -o IdentitiesOnly=yes -i #{sshkey}", '.', "#{boxName}@#{host}:#{toolName}"]
-  console.log "running #{cmd.join ' '}"
+  # enable for debug: console.log "running #{cmd.join ' '}"
+  process.stdout.write "Syncing..."
   child = child_process.spawn cmd[0], cmd[1..]
   child.stdout.pipe process.stdout
   child.stderr.pipe process.stderr
   child.on 'error', ->
     console.warn "exec: #{error}"
   child.on 'exit', ->
-    console.log 'Synced!'
+    console.log '\rSynced!   '
     cb null
 
 sync = ->
@@ -84,9 +86,11 @@ sync = ->
     (-> syncing = false))
 
 command.sync =
-  help: "sync\tSync once"
-  run: ->
-    doSync (err) ->
+  help: "sync [--loop]\t\tSync once / or loop forever"
+  run: (arg) ->
+    if arg[2] == '--loop'
+      forever = true
+    sync (err) ->
       process.exit 0 unless err?
       process.exit err.code
 
@@ -95,7 +99,7 @@ command.sync =
 # for more details. I think we expect this to be fixed in whatever
 # stable Node version comes after 0.9.x.
 command.watch =
-  help: "watch\tWatch files and rsync on change. Not on OS X :-("
+  help: "watch\t\t\tWatch files and rsync on change. Not on OS X :-("
   run: (args) ->
     unless existsSync '.swotconfig'
       console.warn '.swotconfig not found, try running "swot help setup".'
