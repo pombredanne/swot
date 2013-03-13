@@ -15,9 +15,12 @@ as a devDependency and it will appear in your node_modules/.bin directory.
 For each tool you are testing you need to cd into the directory containing
 the git repo for your tool and then run:
 
-    swot setup <boxName> <apikey>
+    swot setup <boxName>
 
-(this saves some stuff in ```.swotconfig```)
+(this saves some stuff in `.swotconfig`)
+
+`<boxName>` will usually be the seven-character ID of a box created in your
+ScraperWiki account using the "Code a blank dataset" tool.
 
 Then you can get swot to watch your tool directory for changes and it
 will sync them with the remote box:

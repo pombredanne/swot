@@ -12,7 +12,7 @@ existsSync = fs.existsSync || path.existsSync
 command = {}
 
 command.help =
-  help: "help\t\t\t\t\tShow this help"
+  help: "help\t\t\tShow this help"
   run: (args) ->
     cmdhelp = (command[cmd].help for cmd of command).join('\n    ')
     help =
@@ -24,36 +24,19 @@ command.help =
     process.stdout.write help
 
 command.setup =
-  help: "setup <boxname> <apikey> [boxserver]\tSet tool project"
+  help: "setup <boxname> [boxserver]\tSet tool project"
   run: (args) ->
     boxName = args[2]
-    apikey = args[3]
-    boxServer = args[4] ? "https://box.scraperwiki.com"
+    boxServer = args[3] ? "https://box.scraperwiki.com"
     sshkey_pub_path = process.env.SSHKEY || "#{process.env.HOME}/.ssh/id_rsa.pub"
-    # add ssh key
-    uri = "#{boxServer}/#{boxName}/sshkeys"
-    options =
-      uri: uri
-      form:
-        apikey: apikey
-        sshkey: fs.readFileSync sshkey_pub_path, "ascii"
-    request.post options, (err, resp, body) ->
-      if err
-        console.warn "Error connecting to #{uri}: #{err}"
-        process.exit (4)
-      if ! /^2/.test(resp.statusCode)
-        console.warn "Status code error from #{uri}: #{resp.statusCode} #{body}"
-        process.exit (8)
-      # ssh key now added
-      obj =
-        boxName: boxName
-        apikey: apikey
-        sshkey: sshkey_pub_path.replace('.pub', '') # todo: use RE
-        boxServer: boxServer
-      filename = ".swotconfig"
-      fs.writeFileSync filename, JSON.stringify(obj, null, 2)
-      console.log "saved details in #{filename}"
-      process.exit(0)
+    obj =
+      boxName: boxName
+      sshkey: sshkey_pub_path.replace('.pub', '') # todo: use RE
+      boxServer: boxServer
+    filename = ".swotconfig"
+    fs.writeFileSync filename, JSON.stringify(obj, null, 2)
+    console.log "saved details in #{filename}"
+    process.exit(0)
 
 syncing = false
 mustSync = false
@@ -86,7 +69,7 @@ sync = ->
     (-> syncing = false))
 
 command.sync =
-  help: "sync [--loop]\t\t\t\tSync once / or loop forever"
+  help: "sync [--loop]\t\tSync once / or loop forever"
   run: (arg) ->
     if arg[2] == '--loop'
       forever = true
@@ -99,7 +82,7 @@ command.sync =
 # for more details. I think we expect this to be fixed in whatever
 # stable Node version comes after 0.9.x.
 command.watch =
-  help: "watch\t\t\t\t\tWatch files and rsync on change. Not on OS X :-("
+  help: "watch\t\t\tWatch files and rsync on change. Not on OS X :-("
   run: (args) ->
     unless existsSync '.swotconfig'
       console.warn '.swotconfig not found, try running "swot help setup".'
